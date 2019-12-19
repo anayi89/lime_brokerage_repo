@@ -1,0 +1,28 @@
+- name: Docker container runner
+  hosts: dockerhost
+  tasks:
+  - name: pull image
+    docker_image:
+      name: centos
+  - name: build image
+    docker_image:
+      path: /root/docker
+      name: webimage
+  - name: create container
+    docker_container
+      name: web
+      image: webimage
+      state: started
+      ports:
+      - "8080:80"
+      tty: true
+      detach: true
+- name: container verifier
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: verify container
+    uri:
+      url: http://dockerhost:8080
+      return_content: yes
+    register: this
